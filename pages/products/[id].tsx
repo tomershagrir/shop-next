@@ -14,22 +14,22 @@ const ProductPage = () => {
 
     useEffect(() => {
         if (id) {
-            fetchProduct(id as string);
+            fetchProduct(Number(id));
         }
     }, [id]);
 
-    const fetchProduct = async (productId: string) => {
+    const fetchProduct = async (productId: number) => {
         try {
-            const productData = await api.getProductById(productId);
+            const productData = await api.getProductById(Number(productId));
             setProduct(productData);
         } catch (error) {
             console.error("Error fetching product:", error);
         }
     };
 
-    const addToCart = async (productId) => {
+    const addToCart = async (productId: number) => {
         try {
-            const updatedCart = await api.addToCart(productId, 1);
+            const updatedCart = await api.addToCart(Number(productId), 1);
             router.push('/');
         } catch (error) {
             console.error("Error adding to cart:", error);
@@ -79,7 +79,7 @@ const ProductPage = () => {
                             <p className="text-xl font-bold text-gray-800 mt-4">₪{product.price}</p>
                             <div className="mt-6">
                                 <button
-                                    onClick={() => addToCart(product.id)}
+                                    onClick={() => addToCart(Number(product.id))}
                                     className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-all"
                                 >
                                     הוסף לסל
@@ -124,7 +124,7 @@ const ProductPage = () => {
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const { id } = context.params;
-    const product = await api.getProductById(id)
+    const product = await api.getProductById(Number(id))
 
     if (!product) {
         return { notFound: true };

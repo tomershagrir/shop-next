@@ -14,7 +14,8 @@ const CartPopup = ({ isOpen, onClose }) => {
 
     const fetchCart = async () => {
         try {
-            const { items } = await api.getCart();
+            const  items  = await api.getCart();
+
             setCartItems(items);
             calculateTotal(items);
         } catch (error) {
@@ -23,7 +24,7 @@ const CartPopup = ({ isOpen, onClose }) => {
     };
 
     const calculateTotal = (items) => {
-        const totalAmount = items.reduce((sum, item) => {
+        const totalAmount = items?.reduce((sum, item) => {
             return sum + item.product.price * item.quantity;
         }, 0);
         setTotal(totalAmount);
@@ -31,9 +32,9 @@ const CartPopup = ({ isOpen, onClose }) => {
 
     const removeFromCart = async (productId) => {
         try {
-            const updatedCart = await api.removeFromCart(productId);
-            setCartItems(updatedCart.cart);
-            calculateTotal(updatedCart.cart);
+            const updatedCart = await api.removeFromCart(Number(productId));
+            setCartItems(updatedCart);
+            calculateTotal(updatedCart);
         } catch (error) {
             console.error('Error removing item from cart:', error);
         }
@@ -60,11 +61,11 @@ const CartPopup = ({ isOpen, onClose }) => {
             >
                 <h2 className="text-2xl font-bold text-gray-800 mb-4">הסל שלי</h2>
 
-                {cartItems.length === 0 ? (
+                {cartItems && cartItems.length === 0 ? (
                     <p className="text-lg text-gray-600">הסל שלך ריק.</p>
                 ) : (
                     <div className="max-h-[60vh] overflow-y-auto">
-                        {cartItems.map((item) => (
+                        {cartItems?.map((item) => (
                             <div key={item.id} className="flex items-center justify-between bg-white p-4 rounded-lg shadow-lg mb-4">
                                 <div className="flex items-center">
                                     <img
@@ -85,7 +86,7 @@ const CartPopup = ({ isOpen, onClose }) => {
                                         onChange={(e) => updateQuantity(item.product.id, parseInt(e.target.value))}
                                         className="w-16 px-2 py-1 border border-gray-300 rounded"
                                     />
-                                    <span className="text-xl font-bold text-gray-800">₪{(item.product.price * item.quantity).toFixed(2)}</span>
+                                    <span className="text-xl font-bold text-gray-800">₪{(item.product.price * item.quantity)?.toFixed(2)}</span>
                                     <button
                                         onClick={() => removeFromCart(item.product.id)}
                                         className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
@@ -96,7 +97,7 @@ const CartPopup = ({ isOpen, onClose }) => {
                             </div>
                         ))}
                         <div className="flex justify-between items-center mt-4">
-                            <span className="text-xl font-semibold text-gray-800">סה"כ: ₪{total.toFixed(2)}</span>
+                            <span className="text-xl font-semibold text-gray-800">סה"כ: ₪{total?.toFixed(2)}</span>
                             <Link href="/CheckoutPage">
                                 <button
                                     className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"

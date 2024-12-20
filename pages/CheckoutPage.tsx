@@ -18,7 +18,7 @@ const CheckoutPage = () => {
 
     const fetchCart = async () => {
         try {
-            const { items } = await api.getCart();
+            const  items  = await api.getCart();
             setCartItems(items);
             calculateTotal(items);
         } catch (error) {
