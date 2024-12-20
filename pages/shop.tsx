@@ -21,7 +21,7 @@ const ShopApp = () => {
 
     const fetchCart = async () => {
         try {
-            const { items } = await api.getCart();
+            const  items = await api.getCart();
             setCartItems(items);
         } catch (error) {
             console.error("Error fetching cart:", error);
@@ -31,7 +31,7 @@ const ShopApp = () => {
     const addToCart = async (productId) => {
         try {
             const updatedCart = await api.addToCart(productId, 1);
-            setCartItems(updatedCart.items);
+            setCartItems(updatedCart);
         } catch (error) {
             console.error("Error adding to cart:", error);
         }
@@ -69,7 +69,7 @@ const ShopApp = () => {
                         </div>
                         <div className="relative" onClick={toggleCart} style={{cursor: "pointer"}}>
                             <ShoppingCart className="h-6 w-6 text-gray-700" />
-                            {cartItems.length > 0 && (
+                            {cartItems?.length > 0 && (
                                 <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
                                     {cartItems.length}
                                 </span>

@@ -14,7 +14,7 @@ const CartPopup = ({ isOpen, onClose }) => {
 
     const fetchCart = async () => {
         try {
-            const { items } = await api.getCart();
+            const items = await api.getCart();
             setCartItems(items);
             calculateTotal(items);
         } catch (error) {
@@ -32,8 +32,8 @@ const CartPopup = ({ isOpen, onClose }) => {
     const removeFromCart = async (productId) => {
         try {
             const updatedCart = await api.removeFromCart(productId);
-            setCartItems(updatedCart.cart);
-            calculateTotal(updatedCart.cart);
+            setCartItems(updatedCart);
+            calculateTotal(updatedCart);
         } catch (error) {
             console.error('Error removing item from cart:', error);
         }
@@ -42,8 +42,8 @@ const CartPopup = ({ isOpen, onClose }) => {
     const updateQuantity = async (productId, quantity) => {
         try {
             const updatedCart = await api.updateCartQuantity(productId, quantity);
-            setCartItems(updatedCart.items);
-            calculateTotal(updatedCart.items);
+            setCartItems(updatedCart);
+            calculateTotal(updatedCart);
         } catch (error) {
             console.error('Error updating cart quantity:', error);
         }

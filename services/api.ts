@@ -1,4 +1,5 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const userId = 'react-next-shop';
 
 export default {
     async getProducts() {
@@ -12,29 +13,25 @@ export default {
     },
 
     async getCart() {
-        const response = await fetch(`${API_URL}/cart`);
+        const response = await fetch(`${API_URL}/cart/${userId}`);
         return response.json();
     },
 
     async addToCart(productId: number, quantity: number) {
-        const response = await fetch(`${API_URL}/cart/add`, {
+        const response = await fetch(`${API_URL}/cart`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ productId, quantity }),
+            body: JSON.stringify({ userId , productId, quantity }),
         });
         return response.json();
     },
 
     async removeFromCart(productId: number)  {
         try {
-            const response = await fetch(`${API_URL}/cart/remove`, {
+            const response = await fetch(`${API_URL}/cart/${userId}/items/${productId}`, {
                 method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ productId }),
             });
 
             if (!response.ok) {
