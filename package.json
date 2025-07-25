@@ -13,6 +13,7 @@
     "@emotion/styled": "^11.13.0",
     "@mui/material": "^6.1.7",
     "@readme/openapi-parser": "^2.6.0",
+    "@tanstack/react-query": "^5.83.0",
     "api": "^6.1.2",
     "json-schema-traverse": "^1.0.0",
     "lucide-react": "^0.460.0",
