@@ -1,52 +1,58 @@
 import React, { useState, useEffect } from 'react';
-import api from '@/services/api';
 import Link from "next/link";
+import { useCart, useRemoveFromCart, useUpdateCartQuantity } from '@/services/api-hooks';
 
-const CartPopup = ({ isOpen, onClose }) => {
-    const [cartItems, setCartItems] = useState([]);
+interface CartPopupProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+interface CartItem {
+  id: number;
+  product: {
+    _id: string;
+    id?: string; // Keep for backward compatibility
+    name: string;
+    description: string;
+    price: number;
+    imageUrl?: string;
+  };
+  quantity: number;
+}
+
+const CartPopup = ({ isOpen, onClose }: CartPopupProps) => {
     const [total, setTotal] = useState(0);
-
+    
+    // Use TanStack Query hooks
+    const { data: cartItems = [], refetch: refetchCart } = useCart();
+    const { mutate: removeItemMutation } = useRemoveFromCart();
+    const { mutate: updateQuantityMutation } = useUpdateCartQuantity();
+    
+    // Refetch cart when popup is opened
     useEffect(() => {
         if (isOpen) {
-            fetchCart();
+            refetchCart();
         }
-    }, [isOpen]);
+    }, [isOpen, refetchCart]);
+    
+    // Calculate total whenever cart items change
+    useEffect(() => {
+        calculateTotal(cartItems);
+    }, [cartItems]);
 
-    const fetchCart = async () => {
-        try {
-            const items = await api.getCart();
-            setCartItems(items);
-            calculateTotal(items);
-        } catch (error) {
-            console.error('Error fetching cart:', error);
-        }
-    };
-
-    const calculateTotal = (items) => {
+    const calculateTotal = (items: CartItem[]) => {
         const totalAmount = items.reduce((sum, item) => {
             return sum + item.product.price * item.quantity;
         }, 0);
         setTotal(totalAmount);
     };
 
-    const removeFromCart = async (productId) => {
-        try {
-            const updatedCart = await api.removeFromCart(productId);
-            setCartItems(updatedCart);
-            calculateTotal(updatedCart);
-        } catch (error) {
-            console.error('Error removing item from cart:', error);
-        }
+    const handleRemoveFromCart = (productId: string) => {
+        removeItemMutation(productId);
     };
 
-    const updateQuantity = async (productId, quantity) => {
-        try {
-            const updatedCart = await api.updateCartQuantity(productId, quantity);
-            setCartItems(updatedCart);
-            calculateTotal(updatedCart);
-        } catch (error) {
-            console.error('Error updating cart quantity:', error);
-        }
+    const handleUpdateQuantity = (productId: string, quantity: number) => {
+        updateQuantityMutation({ productId, quantity });
     };
 
     return (
@@ -64,8 +70,8 @@ const CartPopup = ({ isOpen, onClose }) => {
                     <p className="text-lg text-gray-600">הסל שלך ריק.</p>
                 ) : (
                     <div className="max-h-[60vh] overflow-y-auto">
-                        {cartItems.map((item) => (
-                            <div key={item.id} className="flex items-center justify-between bg-white p-4 rounded-lg shadow-lg mb-4">
+                        {cartItems.map((item: CartItem) => (
+                            <div key={`${item.id}-${item.product._id}`} className="flex items-center justify-between bg-white p-4 rounded-lg shadow-lg mb-4">
                                 <div className="flex items-center">
                                     <img
                                         src={item.product.imageUrl || "/api/placeholder/400/300"}
@@ -82,12 +88,12 @@ const CartPopup = ({ isOpen, onClose }) => {
                                         type="number"
                                         value={item.quantity}
                                         min="1"
-                                        onChange={(e) => updateQuantity(item.product.id, parseInt(e.target.value))}
+                                        onChange={(e) => handleUpdateQuantity(item.product._id, parseInt(e.target.value))}
                                         className="w-16 px-2 py-1 border border-gray-300 rounded"
                                     />
                                     <span className="text-xl font-bold text-gray-800">₪{(item.product.price * item.quantity).toFixed(2)}</span>
                                     <button
-                                        onClick={() => removeFromCart(item.product.id)}
+                                        onClick={() => handleRemoveFromCart(item.product._id)}
                                         className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
                                     >
                                         הסר
