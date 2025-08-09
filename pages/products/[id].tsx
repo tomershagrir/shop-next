@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import api from "@/services/api";
-import { Card, CardContent } from "@mui/material";
 import {GetServerSideProps} from "next";
 import Head from "next/head";
 
@@ -27,9 +26,10 @@ const ProductPage = () => {
         }
     };
 
-    const addToCart = async (productId) => {
+    const addToCart = async (productId: string) => {
         try {
-            const updatedCart = await api.addToCart(productId, 1);
+            console.log("Adding to cart with productId:", productId, "type:", typeof productId);
+            await api.addToCart(productId, 1);
             router.push('/');
         } catch (error) {
             console.error("Error adding to cart:", error);
@@ -79,7 +79,20 @@ const ProductPage = () => {
                             <p className="text-xl font-bold text-gray-800 mt-4">₪{product.price}</p>
                             <div className="mt-6">
                                 <button
-                                    onClick={() => addToCart(product.id)}
+                                    onClick={() => {
+                                        console.log("Button clicked!");
+                                        console.log("Product:", product);
+                                        if (product) {
+                                            console.log("Product keys:", Object.keys(product));
+                                            console.log("Product ID:", product.id);
+                                            console.log("Product _id:", product._id);
+                                            const productId = product._id || product.id;
+                                            console.log("Using productId:", productId);
+                                            addToCart(productId);
+                                        } else {
+                                            console.log("Product is null/undefined");
+                                        }
+                                    }}
                                     className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-all"
                                 >
                                     הוסף לסל
@@ -124,15 +137,24 @@ const ProductPage = () => {
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const { id } = context.params;
-    const product = await api.getProductById(id)
+    console.log("Fetching product with ID:", id);
+    
+    try {
+        const product = await api.getProductById(id as string);
+        console.log("Product response:", product);
+        
+        if (!product || product.statusCode) {
+            console.log("Product not found or error:", product);
+            return { notFound: true };
+        }
 
-    if (!product) {
+        return {
+            props: { product },
+        };
+    } catch (error) {
+        console.error("Error fetching product:", error);
         return { notFound: true };
     }
-
-    return {
-        props: { product },
-    };
 };
 
 export default ProductPage;

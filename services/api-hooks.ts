@@ -36,7 +36,7 @@ export function useAddToCart() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: ({ productId, quantity }: { productId: number; quantity: number }) => 
+    mutationFn: ({ productId, quantity }: { productId: string; quantity: number }) => 
       api.addToCart(productId, quantity),
     onSuccess: () => {
       // Invalidate cart query to trigger a refetch
@@ -49,7 +49,7 @@ export function useRemoveFromCart() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (productId: number) => api.removeFromCart(productId),
+    mutationFn: (productId: string) => api.removeFromCart(productId),
     onSuccess: () => {
       // Invalidate cart query to trigger a refetch
       queryClient.invalidateQueries({ queryKey: queryKeys.cart });
@@ -63,7 +63,7 @@ export function useUpdateCartQuantity() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: ({ productId, quantity }: { productId: number; quantity: number }) => {
+    mutationFn: ({ productId, quantity }: { productId: string; quantity: number }) => {
       // If the API has an updateCartQuantity method, use it
       // Otherwise, we can use addToCart as a workaround
       return api.addToCart(productId, quantity);

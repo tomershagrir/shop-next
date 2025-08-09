@@ -9,7 +9,8 @@ import { useProducts, useCart, useAddToCart } from "@/services/api-hooks";
 
 // Define types for product and cart items
 interface Product {
-  id: number;
+  _id: string;
+  id?: string; // Keep for backward compatibility
   name: string;
   description: string;
   price: number;
@@ -22,10 +23,10 @@ const ShopApp = () => {
     
     // Use TanStack Query hooks
     const { data: products = [], isLoading: isLoadingProducts, error: productsError } = useProducts();
-    const { data: cartItems = [], isLoading: isLoadingCart } = useCart();
+    const { data: cartItems = [] } = useCart();
     const { mutate: addToCartMutation, isPending: isAddingToCart } = useAddToCart();
 
-    const handleAddToCart = (productId: number) => {
+    const handleAddToCart = (productId: string) => {
         addToCartMutation({ productId, quantity: 1 });
     };
 
@@ -104,9 +105,11 @@ const ShopApp = () => {
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                         {filteredProducts.length > 0 ? (
-                            filteredProducts.map((product: Product) => (
-                                <Card key={product.id} className="overflow-hidden">
-                                    <Link href={`/products/${product.id}`} passHref>
+                            filteredProducts.map((product: Product) => {
+                                console.log("Product in shop:", product);
+                                return (
+                                <Card key={product._id} className="overflow-hidden">
+                                    <Link href={`/products/${product._id}`} passHref>
                                         <img
                                             src={product.imageUrl || "/api/placeholder/400/300"}
                                             alt={product.name}
@@ -114,7 +117,7 @@ const ShopApp = () => {
                                         />
                                     </Link>
                                     <CardContent className="p-4">
-                                        <Link href={`/products/${product.id}`} passHref>
+                                        <Link href={`/products/${product._id}`} passHref>
                                             <h3 className="text-lg font-semibold text-gray-800 cursor-pointer">
                                                 {product.name}
                                             </h3>
@@ -123,7 +126,7 @@ const ShopApp = () => {
                                         <div className="mt-4 flex justify-between items-center">
                                             <span className="text-xl font-bold text-gray-800">₪{product.price}</span>
                                             <button
-                                                onClick={() => handleAddToCart(product.id)}
+                                                onClick={() => handleAddToCart(product._id)}
                                                 disabled={isAddingToCart}
                                                 className={`${
                                                     isAddingToCart ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"
@@ -134,7 +137,8 @@ const ShopApp = () => {
                                         </div>
                                     </CardContent>
                                 </Card>
-                            ))
+                                );
+                            })
                         ) : (
                             <p className="text-gray-600">לא נמצאו מוצרים תואמים.</p>
                         )}
@@ -162,7 +166,7 @@ const ShopApp = () => {
                         <div>
                             <h3 className="text-lg font-semibold mb-4">פרטי התקשרות</h3>
                             <ul className="text-gray-400">
-                                <li className="mb-2">דוא"ל: your@email.com</li>
+                                <li className="mb-2">דוא&ldquo;ל: your@email.com</li>
                                 <li className="mb-2">טלפון: 03-1234567</li>
                                 <li className="mb-2">כתובת: הכתובת שלך כאן</li>
                             </ul>

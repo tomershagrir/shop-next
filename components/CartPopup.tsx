@@ -10,7 +10,8 @@ interface CartPopupProps {
 interface CartItem {
   id: number;
   product: {
-    id: number;
+    _id: string;
+    id?: string; // Keep for backward compatibility
     name: string;
     description: string;
     price: number;
@@ -46,11 +47,11 @@ const CartPopup = ({ isOpen, onClose }: CartPopupProps) => {
         setTotal(totalAmount);
     };
 
-    const handleRemoveFromCart = (productId: number) => {
+    const handleRemoveFromCart = (productId: string) => {
         removeItemMutation(productId);
     };
 
-    const handleUpdateQuantity = (productId: number, quantity: number) => {
+    const handleUpdateQuantity = (productId: string, quantity: number) => {
         updateQuantityMutation({ productId, quantity });
     };
 
@@ -70,7 +71,7 @@ const CartPopup = ({ isOpen, onClose }: CartPopupProps) => {
                 ) : (
                     <div className="max-h-[60vh] overflow-y-auto">
                         {cartItems.map((item: CartItem) => (
-                            <div key={item.id} className="flex items-center justify-between bg-white p-4 rounded-lg shadow-lg mb-4">
+                            <div key={`${item.id}-${item.product._id}`} className="flex items-center justify-between bg-white p-4 rounded-lg shadow-lg mb-4">
                                 <div className="flex items-center">
                                     <img
                                         src={item.product.imageUrl || "/api/placeholder/400/300"}
@@ -87,12 +88,12 @@ const CartPopup = ({ isOpen, onClose }: CartPopupProps) => {
                                         type="number"
                                         value={item.quantity}
                                         min="1"
-                                        onChange={(e) => handleUpdateQuantity(item.product.id, parseInt(e.target.value))}
+                                        onChange={(e) => handleUpdateQuantity(item.product._id, parseInt(e.target.value))}
                                         className="w-16 px-2 py-1 border border-gray-300 rounded"
                                     />
                                     <span className="text-xl font-bold text-gray-800">₪{(item.product.price * item.quantity).toFixed(2)}</span>
                                     <button
-                                        onClick={() => handleRemoveFromCart(item.product.id)}
+                                        onClick={() => handleRemoveFromCart(item.product._id)}
                                         className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
                                     >
                                         הסר
